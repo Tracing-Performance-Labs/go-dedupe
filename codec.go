@@ -1,10 +1,12 @@
 package dedupe
 
-type Repr interface {
-	int32 | float32
+type Codec[T Repr] struct {
+	t table[T]
 }
 
-type Codec[T Repr] struct{}
+func NewCodec[T Repr](t table[T]) *Codec[T] {
+	return &Codec[T]{t: t}
+}
 
 func (c *Codec[T]) Encode(s string) T {
 	return 0
