@@ -11,7 +11,8 @@ func NewCodec[T Repr](t table[T]) *Codec[T] {
 
 func (c *Codec[T]) Encode(s string) T {
 	// TODO
-	return 0
+	var repr T
+	return repr
 }
 
 func (c *Codec[T]) Decode(o T) string {
