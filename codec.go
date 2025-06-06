@@ -11,7 +11,7 @@ func NewCodec[T Repr](t table[T]) *Codec[T] {
 
 // Encode the provided value by obtaining a compact representation for it.
 func (c *Codec[T]) Encode(s string) T {
-	return c.t.Lookup(s)
+	return c.t.StoreAsRepr(s)
 }
 
 // Retrieve a value from its compact representation.

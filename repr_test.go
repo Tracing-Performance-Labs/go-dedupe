@@ -2,7 +2,7 @@ package dedupe
 
 import "testing"
 
-var strings = []string{
+var testStrings = []string{
 	"hello",
 	"world",
 	"black",
@@ -20,7 +20,7 @@ var strings = []string{
 func TestGetRepr(t *testing.T) {
 	simpleRepr := NewDefaultObjectRepr()
 
-	for _, s := range strings {
+	for _, s := range testStrings {
 		repr := simpleRepr.GetRepr(s)
 		if len(repr) > len(s) {
 			t.Errorf("Expected the size of the represenation to be less than or equal to the size of the original value")
