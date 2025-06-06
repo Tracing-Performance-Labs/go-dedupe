@@ -7,15 +7,15 @@ import (
 )
 
 // A table that uses Redis as a backend store.
-type redisTable[T Repr] struct {
-	repr   ObjectRepr[T]
+type redisTable struct {
+	repr   ObjectRepr[string]
 	client *redis.Client
 	ctx    context.Context
 }
 
 // Create a new Redis backed table.
-func NewRedisTable[T Repr](repr ObjectRepr[T]) *redisTable[T] {
-	return &redisTable[T]{
+func NewRedisTable[T Repr](repr ObjectRepr[string]) *redisTable {
+	return &redisTable{
 		repr: repr,
 		client: redis.NewClient(&redis.Options{
 			// TODO: Get from enviroment variable.
@@ -26,18 +26,18 @@ func NewRedisTable[T Repr](repr ObjectRepr[T]) *redisTable[T] {
 	}
 }
 
-func (rt *redisTable[T]) Lookup(s string) T {
+func (rt *redisTable) Lookup(s string) string {
 	val, err := rt.client.Get(rt.ctx, s).Result()
 	if err != nil {
-		// TODO: Compute representation.
-		// TODO: Store representation in Redis.
-		// TODO: Set val.
+		// 1. Compute representation.
+		repr := rt.repr.GetRepr(s)
+
+		// 2. Store representation in Redis.
+		rt.client.Set(rt.ctx, s, repr, 0)
+
+		// 3. Set val.
+		val = repr
 	}
 
-	repr, err := rt.repr.ParseRepr(val)
-	if err != nil {
-		panic("Failed to parse representation: " + err.Error())
-	}
-
-	return repr
+	return val
 }

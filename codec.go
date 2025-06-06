@@ -9,12 +9,12 @@ func NewCodec[T Repr](t table[T]) *Codec[T] {
 	return &Codec[T]{t: t}
 }
 
+// Encode the provided value by obtaining a compact representation for it.
 func (c *Codec[T]) Encode(s string) T {
-	// TODO
-	var repr T
-	return repr
+	return c.t.Lookup(s)
 }
 
+// Retrieve a value from its compact representation.
 func (c *Codec[T]) Decode(o T) string {
 	// TODO
 	return ""
