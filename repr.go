@@ -26,7 +26,7 @@ func (r *simpleObjectRepr) GetRepr(s string) string {
 	count := r.counter
 	r.counter += 1
 
-	repr := fmt.Sprintf("\x00%s", strconv.Itoa(count))
+	repr := fmt.Sprintf("%s", strconv.Itoa(count))
 
 	if len(repr) > len(s) {
 		return s
