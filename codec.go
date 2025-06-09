@@ -6,11 +6,35 @@ type Codec struct {
 	repr ObjectRepr[string]
 }
 
-func NewCodec(t table[string], repr ObjectRepr[string]) *Codec {
-	// TODO: Use options pattern to configure the codec.
-	return &Codec{
-		t:    t,
-		repr: repr,
+type CodecOption func(*Codec)
+
+func NewCodec(opts ...CodecOption) *Codec {
+	var (
+		defaultTable = NewMemoryTable[string]()
+		defaultRepr  = NewDefaultObjectRepr()
+	)
+
+	c := &Codec{
+		t:    defaultTable,
+		repr: defaultRepr,
+	}
+
+	for _, opt := range opts {
+		opt(c)
+	}
+
+	return c
+}
+
+func WithRedisTable() CodecOption {
+	return func(c *Codec) {
+		c.t = NewRedisTable()
+	}
+}
+
+func WithDefaultObjectRepr() CodecOption {
+	return func(c *Codec) {
+		c.repr = NewDefaultObjectRepr()
 	}
 }
 

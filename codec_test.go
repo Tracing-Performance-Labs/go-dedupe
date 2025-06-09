@@ -5,9 +5,10 @@ import (
 )
 
 func TestCodecEncode(t *testing.T) {
-	repr := NewDefaultObjectRepr()
-	table := NewRedisTable()
-	codec := NewCodec(table, repr)
+	codec := NewCodec(
+		WithRedisTable(),
+		WithDefaultObjectRepr(),
+	)
 
 	for _, s := range testStrings {
 		r := codec.Encode(s)
@@ -18,9 +19,10 @@ func TestCodecEncode(t *testing.T) {
 }
 
 func TestCodecDecode(t *testing.T) {
-	repr := NewDefaultObjectRepr()
-	table := NewRedisTable()
-	codec := NewCodec(table, repr)
+	codec := NewCodec(
+		WithRedisTable(),
+		WithDefaultObjectRepr(),
+	)
 
 	for _, s := range testStrings {
 		r := codec.Encode(s)
