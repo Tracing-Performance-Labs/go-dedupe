@@ -2,6 +2,7 @@ package dedupe
 
 import (
 	"context"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -14,11 +15,21 @@ type redisTable struct {
 
 // Create a new Redis backed table.
 func NewRedisTable() *redisTable {
+	redisHost := os.Getenv("REDIS_HOST")
+	if redisHost == "" {
+		redisHost = "localhost"
+	}
+
+	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
+	}
+
+	redisAddr := redisHost + ":" + redisPort
+
 	return &redisTable{
 		client: redis.NewClient(&redis.Options{
-			// TODO: Get from enviroment variable.
-			// TODO: Look into how go services are normally configured.
-			Addr: "localhost:6379",
+			Addr: redisAddr,
 		}),
 		ctx: context.Background(),
 	}
