@@ -1,4 +1,4 @@
-module github.com/aloussase/go-dedupe
+module github.com/Tracing-Performance-Labs/go-dedupe
 
 go 1.24.3
 
