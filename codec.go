@@ -26,18 +26,6 @@ func NewCodec(opts ...CodecOption) *Codec {
 	return c
 }
 
-func WithRedisTable() CodecOption {
-	return func(c *Codec) {
-		c.t = NewRedisTable()
-	}
-}
-
-func WithDefaultObjectRepr() CodecOption {
-	return func(c *Codec) {
-		c.repr = NewDefaultObjectRepr()
-	}
-}
-
 // Encode the provided value by obtaining a compact representation for it.
 func (c *Codec) Encode(s string) string {
 	val, err := c.t.Lookup(s)
