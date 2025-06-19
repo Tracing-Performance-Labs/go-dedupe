@@ -1,7 +1,8 @@
 package dedupe
 
 import (
-	"strconv"
+	"encoding/base64"
+	"encoding/binary"
 
 	"github.com/spaolacci/murmur3"
 )
@@ -15,7 +16,11 @@ func NewMurmurRepr() ObjectRepr[string] {
 func (r *murmurRepr) GetRepr(s string) string {
 	bytes := []byte(s)
 	hash := murmur3.Sum32(bytes)
-	repr := strconv.FormatUint(uint64(hash), 10)
+
+	output := make([]byte, 4)
+	binary.BigEndian.PutUint32(output, hash)
+
+	repr := base64.StdEncoding.WithPadding(base64.NoPadding).EncodeToString(output)
 
 	if len(repr) > len(s) {
 		return s
