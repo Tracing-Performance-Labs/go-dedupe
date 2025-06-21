@@ -33,3 +33,16 @@ func TestGetRepr(t *testing.T) {
 		}
 	}
 }
+
+var sink string
+
+func BenchmarkDefaultRepr(b *testing.B) {
+	r := NewDefaultObjectRepr()
+	b.RunParallel(func(b *testing.PB) {
+		for b.Next() {
+			for _, s := range testStrings {
+				sink = r.GetRepr(s)
+			}
+		}
+	})
+}
