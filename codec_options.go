@@ -7,6 +7,13 @@ func WithRedisTable() CodecOption {
 	}
 }
 
+// Configure the Codec to use a memory table as the backing store.
+func WithMemoryTable() CodecOption {
+	return func(c *Codec) {
+		c.t = NewMemoryTable[string]()
+	}
+}
+
 // Configure the Codec to use the default object representation.
 func WithDefaultObjectRepr() CodecOption {
 	return func(c *Codec) {
