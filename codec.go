@@ -1,9 +1,13 @@
 package dedupe
 
+import cuckoo "github.com/seiflotfy/cuckoofilter"
+
 // A codec can be used to convert a string into a a more compact representation.
 type Codec struct {
-	t    table[string]
-	repr ObjectRepr[string]
+	t      table[string]
+	repr   ObjectRepr[string]
+	filter cuckoo.Filter
+	cache  map[string]string
 }
 
 type CodecOption func(*Codec)
@@ -15,8 +19,10 @@ func NewCodec(opts ...CodecOption) *Codec {
 	)
 
 	c := &Codec{
-		t:    defaultTable,
-		repr: defaultRepr,
+		t:      defaultTable,
+		repr:   defaultRepr,
+		filter: *cuckoo.NewFilter(1000000),
+		cache:  make(map[string]string, 1000000),
 	}
 
 	for _, opt := range opts {
@@ -26,22 +32,43 @@ func NewCodec(opts ...CodecOption) *Codec {
 	return c
 }
 
+func (c *Codec) store(s string) string {
+	// 1. Compute representation.
+	repr := c.repr.GetRepr(s)
+
+	// 2. Store representation in the table.
+	c.t.Store(s, repr)
+
+	// 3. Store the reverse mapping.
+	c.t.Store(repr, s)
+
+	// 3. Set val.
+	return repr
+}
+
 // Encode the provided value by obtaining a compact representation for it.
 func (c *Codec) Encode(s string) string {
+	bs := []byte(s)
+	seen := c.filter.Lookup(bs)
+	if !seen {
+		if !c.filter.Insert(bs) {
+			panic("failed to store in filter")
+		}
+		val := c.store(s)
+		c.cache[s] = val
+		return val
+	}
+
+	val, ok := c.cache[s]
+	if ok {
+		return val
+	}
+
 	val, err := c.t.Lookup(s)
 	if err != nil {
-		// 1. Compute representation.
-		repr := c.repr.GetRepr(s)
-
-		// 2. Store representation in the table.
-		c.t.Store(s, repr)
-
-		// 3. Store the reverse mapping.
-		c.t.Store(repr, s)
-
-		// 3. Set val.
-		val = repr
+		return c.store(s)
 	}
+
 	return val
 }
 

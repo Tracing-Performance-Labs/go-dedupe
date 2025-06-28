@@ -41,3 +41,16 @@ func TestCodecDecode(t *testing.T) {
 		}
 	})
 }
+
+func BenchmarkCodec(b *testing.B) {
+	withRedis(b, func() {
+		b.RunParallel(func(b *testing.PB) {
+			c := NewCodec(WithRedisTable(), WithMurmurRepr())
+			for b.Next() {
+				for _, s := range testStrings {
+					sink = c.Encode(s)
+				}
+			}
+		})
+	})
+}

@@ -9,7 +9,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-func withRedis(t *testing.T, f func()) {
+func withRedis(tb testing.TB, f func()) {
 	ctx := context.Background()
 	containerRequest := testcontainers.ContainerRequest{
 		Image:        "redis:latest",
@@ -23,7 +23,7 @@ func withRedis(t *testing.T, f func()) {
 	})
 
 	if err != nil {
-		t.Fatalf("Failed to start Redis container: %v", err)
+		tb.Fatalf("Failed to start Redis container: %v", err)
 	}
 
 	host, _ := redisContainer.Host(ctx)
@@ -32,6 +32,6 @@ func withRedis(t *testing.T, f func()) {
 	os.Setenv("REDIS_HOST", host)
 	os.Setenv("REDIS_PORT", port.Port())
 
-	defer testcontainers.CleanupContainer(t, redisContainer)
+	defer testcontainers.CleanupContainer(tb, redisContainer)
 	f()
 }
