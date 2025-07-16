@@ -1,13 +1,17 @@
 package dedupe
 
-import cuckoo "github.com/seiflotfy/cuckoofilter"
+import (
+	"sync"
+
+	cuckoo "github.com/seiflotfy/cuckoofilter"
+)
 
 // A codec can be used to convert a string into a a more compact representation.
 type Codec struct {
 	t      table[string]
 	repr   ObjectRepr[string]
 	filter cuckoo.Filter
-	cache  map[string]string
+	cache  sync.Map
 }
 
 type CodecOption func(*Codec)
@@ -22,7 +26,6 @@ func NewCodec(opts ...CodecOption) *Codec {
 		t:      defaultTable,
 		repr:   defaultRepr,
 		filter: *cuckoo.NewFilter(1000000),
-		cache:  make(map[string]string, 1000000),
 	}
 
 	for _, opt := range opts {
@@ -55,13 +58,13 @@ func (c *Codec) Encode(s string) string {
 			panic("failed to store in filter")
 		}
 		val := c.store(s)
-		c.cache[s] = val
+		c.cache.Store(s, val)
 		return val
 	}
 
-	val, ok := c.cache[s]
+	val, ok := c.cache.Load(s)
 	if ok {
-		return val
+		return val.(string)
 	}
 
 	val, err := c.t.Lookup(s)
@@ -69,7 +72,7 @@ func (c *Codec) Encode(s string) string {
 		return c.store(s)
 	}
 
-	return val
+	return val.(string)
 }
 
 // Retrieve a value from its compact representation.
